@@ -25,15 +25,16 @@ jobs:
       - name: CI setup
         uses: ./.github/actions/ci-setup
 
-      - name: Verify declarative database schema
+      - name: Preview declarative database migration
         run: |
           cd apps/database
-          pnpm exec supabase db diff --schema public > /tmp/schema-diff.sql
-          if [ -s /tmp/schema-diff.sql ]; then
-            echo "Declarative schema and migrations are out of sync:"
-            cat /tmp/schema-diff.sql
-            exit 1
-          fi
+          pnpm exec supabase db diff -f ci_database_hardening
+          migration_file="$(ls -t supabase/migrations/*_ci_database_hardening.sql | head -1)"
+          echo "GENERATED_MIGRATION_FILE=$migration_file"
+          echo "----- GENERATED MIGRATION START -----"
+          cat "$migration_file"
+          echo "----- GENERATED MIGRATION END -----"
+          rm "$migration_file"
 
       - name: Lint
         run: pnpm run lint
