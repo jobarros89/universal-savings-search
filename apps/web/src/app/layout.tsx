@@ -25,22 +25,20 @@ const robotoMono = localFont({
 
 export const metadata = {
   title: {
-    default: 'Nextbase',
-    template: '%s · Nextbase',
+    default: 'Savings Search',
+    template: '%s · Savings Search',
   },
   description:
-    'An open-source Next.js and Supabase starter for shipping secure products faster.',
+    'Buscador universal de economia para encontrar, validar e comparar descontos, preços e benefícios.',
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning className={`${inter.variable} ${robotoMono.variable}`}>
+    <html lang="pt-BR" suppressHydrationWarning className={`${inter.variable} ${robotoMono.variable}`}>
       <head />
       <body>
         <DynamicLayoutProviders>
-          <ClientLayout>
-            {children}
-          </ClientLayout>
+          <ClientLayout>{children}</ClientLayout>
         </DynamicLayoutProviders>
       </body>
     </html>
