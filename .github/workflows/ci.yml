@@ -6,71 +6,33 @@ on:
   pull_request:
     branches: [main]
 
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  build:
-    strategy:
-      matrix:
-        node-version: [24.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
-
-    name: Build with ${{ matrix.node-version }}
+  validate:
+    name: Lint, typecheck, test and build
     runs-on: ubuntu-latest
-    if: ${{ github.repository == 'imbhargav5/nextbase-nextjs-supabase-starter'}}
-    steps:
-      - name: 'Check if user has write access'
-        uses: 'lannonbr/repo-permission-check-action@2.0.0'
-        with:
-          permission: 'write'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - if: github.event_name == 'pull_request'
-        name: ⬇️ Checkout repo
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-      - if: github.event_name != 'pull_request'
-        name: ⬇️ Checkout repo
-        uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-      - name: 🚂 CI Setup
-        uses: ./.github/actions/ci-setup
-      - run: pnpm run build
+    timeout-minutes: 20
 
-  test:
-    strategy:
-      matrix:
-        node-version: [24.x]
-
-    name: Run all tests
-    runs-on: ubuntu-latest
-    if: ${{ github.repository == 'imbhargav5/nextbase-nextjs-supabase-starter'}}
     steps:
-      - name: 'Check if user has write access'
-        uses: 'lannonbr/repo-permission-check-action@2.0.0'
-        with:
-          permission: 'write'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - if: github.event_name == 'pull_request'
-        name: ⬇️ Checkout repo
+      - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
-          persist-credentials: false
-      - if: github.event_name != 'pull_request'
-        name: ⬇️ Checkout repo
-        uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-      - name: 🚂 CI Setup
+          fetch-depth: 1
+
+      - name: CI setup
         uses: ./.github/actions/ci-setup
-      - name: Linter
+
+      - name: Lint
         run: pnpm run lint
 
-      - name: Type checking
+      - name: Typecheck
         run: pnpm run typecheck
 
-      - name: Run unit tests
+      - name: Unit tests
         run: pnpm run test
+
+      - name: Build
+        run: pnpm run build
