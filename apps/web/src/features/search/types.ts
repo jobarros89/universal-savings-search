@@ -8,6 +8,15 @@ export type SearchIntentKind =
   | 'travel'
   | 'other';
 
+export type SearchIntentField =
+  | 'category'
+  | 'location'
+  | 'origin'
+  | 'destination'
+  | 'startDate'
+  | 'endDate'
+  | 'quantity';
+
 export interface SearchIntent {
   id?: string;
   kind: SearchIntentKind;
@@ -21,4 +30,26 @@ export interface SearchIntent {
   quantity?: number;
   currency?: string;
   attributes?: Record<string, string | number | boolean>;
+}
+
+export interface SearchIntentContext {
+  locale?: string;
+  countryCode?: string;
+  currency?: string;
+  now?: string;
+}
+
+export interface ParsedSearchIntent extends SearchIntent {
+  normalizedQuery: string;
+  confidence: number;
+  signals: string[];
+  missingFields: SearchIntentField[];
+  requiresClarification: boolean;
+}
+
+export interface SearchIntentInterpreter {
+  interpret(
+    query: string,
+    context?: SearchIntentContext,
+  ): Promise<ParsedSearchIntent>;
 }
