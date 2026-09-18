@@ -14,7 +14,7 @@ jobs:
   validate:
     name: Lint, typecheck, test and build
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
 
     steps:
       - name: Checkout
@@ -24,6 +24,17 @@ jobs:
 
       - name: CI setup
         uses: ./.github/actions/ci-setup
+
+      - name: Preview declarative database migration
+        run: |
+          cd apps/database
+          pnpm exec supabase db diff -f ci_universal_domain
+          migration_file="$(ls -t supabase/migrations/*_ci_universal_domain.sql | head -1)"
+          echo "GENERATED_MIGRATION_FILE=$migration_file"
+          echo "----- GENERATED MIGRATION START -----"
+          cat "$migration_file"
+          echo "----- GENERATED MIGRATION END -----"
+          rm "$migration_file"
 
       - name: Lint
         run: pnpm run lint
