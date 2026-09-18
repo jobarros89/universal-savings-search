@@ -5,9 +5,7 @@ import {
   ChevronUp,
   ExternalLink,
   LayoutDashboard,
-  LockKeyhole,
   LogOut,
-  Plus,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -26,7 +24,6 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
-  SidebarGroupAction,
   SidebarGroupContent,
   SidebarGroupLabel,
   SidebarMenu,
@@ -38,7 +35,6 @@ import { signOutAction } from '@/data/auth/sign-out';
 
 const navigationItems = [
   { title: 'Dashboard', url: '/dashboard', icon: LayoutDashboard },
-  { title: 'Private items', url: '/private-items', icon: LockKeyhole },
 ];
 
 export function AppSidebarContent({ user }: { user: User }) {
@@ -69,18 +65,10 @@ export function AppSidebarContent({ user }: { user: User }) {
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Workspace</SidebarGroupLabel>
-          <SidebarGroupAction asChild title="Create private item">
-            <Link href="/dashboard/new">
-              <Plus aria-hidden="true" />
-              <span className="sr-only">Create private item</span>
-            </Link>
-          </SidebarGroupAction>
           <SidebarGroupContent>
             <SidebarMenu>
               {navigationItems.map((item) => {
-                const isActive =
-                  pathname === item.url ||
-                  (item.url === '/private-items' && pathname.startsWith('/private-item/'));
+                const isActive = pathname === item.url;
                 const Icon = item.icon;
 
                 return (
@@ -142,13 +130,13 @@ export function AppSidebarContent({ user }: { user: User }) {
                 <DropdownMenuItem asChild>
                   <Link href="/">
                     <ExternalLink aria-hidden="true" />
-                    View public site
+                    Ver site público
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleSignOut} disabled={isPending}>
                   <LogOut aria-hidden="true" />
-                  {isPending ? 'Signing out...' : 'Sign out'}
+                  {isPending ? 'Saindo...' : 'Sair'}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
