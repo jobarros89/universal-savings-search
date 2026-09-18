@@ -269,6 +269,9 @@ create table if not exists public.offer_coupons (
   primary key (offer_id, coupon_id)
 );
 
+create index if not exists offer_coupons_coupon_id_idx
+  on public.offer_coupons(coupon_id);
+
 create table if not exists public.offer_benefits (
   id uuid primary key default extensions.uuid_generate_v4(),
   offer_id uuid not null references public.offers(id) on delete cascade,
@@ -395,6 +398,10 @@ create index if not exists offer_validations_offer_id_idx
 create index if not exists offer_validations_coupon_id_idx
   on public.offer_validations(coupon_id, validated_at desc)
   where coupon_id is not null;
+
+create index if not exists offer_validations_user_id_idx
+  on public.offer_validations(user_id)
+  where user_id is not null;
 
 -- =============================================================================
 -- Search audit / personalization foundation
@@ -572,13 +579,13 @@ create policy offer_conditions_public_read
 create policy offer_validations_user_read
   on public.offer_validations for select
   to authenticated
-  using (user_id = auth.uid());
+  using (user_id = (select auth.uid()));
 
 create policy offer_validations_user_report_insert
   on public.offer_validations for insert
   to authenticated
   with check (
-    user_id = auth.uid()
+    user_id = (select auth.uid())
     and method = 'user_report'
     and validation_level = 'user_confirmed'
   );
@@ -586,12 +593,12 @@ create policy offer_validations_user_report_insert
 create policy search_queries_user_read
   on public.search_queries for select
   to authenticated
-  using (user_id = auth.uid());
+  using (user_id = (select auth.uid()));
 
 create policy search_queries_user_insert
   on public.search_queries for insert
   to authenticated
-  with check (user_id = auth.uid());
+  with check (user_id = (select auth.uid()));
 
 create policy search_intents_user_read
   on public.search_intents for select
@@ -601,7 +608,7 @@ create policy search_intents_user_read
       select 1
       from public.search_queries
       where search_queries.id = search_intents.query_id
-        and search_queries.user_id = auth.uid()
+        and search_queries.user_id = (select auth.uid())
     )
   );
 
@@ -613,7 +620,7 @@ create policy search_intents_user_insert
       select 1
       from public.search_queries
       where search_queries.id = search_intents.query_id
-        and search_queries.user_id = auth.uid()
+        and search_queries.user_id = (select auth.uid())
     )
   );
 
